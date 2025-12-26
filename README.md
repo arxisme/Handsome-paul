@@ -2,8 +2,6 @@
 
 **Handsome Paul** is a Chrome/Edge browser extension that transforms Paul Graham's website (paulgraham.com) into a modern, beautiful reading experience.
 
-![Handsome Paul Preview](https://github.com/user-attachments/assets/placeholder-image)
-*(You can add a screenshot here after pushing images)*
 
 ## Features
 
