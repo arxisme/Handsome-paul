@@ -10,13 +10,12 @@ function buildNav() {
     const html = `
     <nav id="handsome-paul-nav">
       <div class="hp-nav-inner">
-        <a href="index.html" class="hp-logo">PG</a>
+        <a href="index.html" class="hp-logo">Paul Graham</a>
         <div class="hp-links">
           <a href="articles.html">Essays</a>
-          <a href="books.html">Books</a>
           <a href="https://news.ycombinator.com">Hacker News</a>
-          <a href="bio.html">Bio</a>
           <a href="rss.html">RSS</a>
+          <button id="hp-theme-toggle">Dark Mode</button>
         </div>
       </div>
     </nav>
@@ -24,6 +23,28 @@ function buildNav() {
   `;
     const div = document.createElement('div');
     div.innerHTML = html;
+
+    // Theme Toggle Logic
+    setTimeout(() => {
+        const toggleBtn = document.getElementById('hp-theme-toggle');
+        const root = document.documentElement;
+
+        // Load saved preference
+        const savedTheme = localStorage.getItem('hp-theme');
+        if (savedTheme === 'dark') {
+            root.classList.add('dark-theme');
+            if (toggleBtn) toggleBtn.textContent = "Light Mode";
+        }
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                const isDark = root.classList.toggle('dark-theme');
+                localStorage.setItem('hp-theme', isDark ? 'dark' : 'light');
+                toggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
+            });
+        }
+    }, 100); // Small delay to ensure insertion into DOM
+
     return div;
 }
 
@@ -149,9 +170,15 @@ function cleanupDOM(winnerNode) {
     mainWrapper.id = "handsome-paul-main";
 
     let article;
-    // Heuristic for list page: URL contains "articles" or winner has many links relative to text
-    const linkCount = winnerNode.querySelectorAll('a').length;
-    const isListHeuristic = linkCount > 20;
+    // Calculate link density: ratio of text inside links vs total text
+    const allText = winnerNode.textContent.replace(/\s/g, "").length;
+    let linkText = 0;
+    winnerNode.querySelectorAll('a').forEach(a => {
+        linkText += a.textContent.replace(/\s/g, "").length;
+    });
+
+    const linkDensity = allText > 0 ? (linkText / allText) : 0;
+    const isListHeuristic = linkDensity > 0.5; // If > 50% of text is links, it's likely a list
 
     if (window.location.href.includes("articles.html") || isListHeuristic) {
         article = buildListPage(winnerNode);
